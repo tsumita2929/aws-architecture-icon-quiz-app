@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="jp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Architecture Icon Quiz</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 80vh;
+            height: auto;
+            width: auto;
+        }
+
+        p {
+            font-size: 2em;
+        }
+
+        .button {
+            margin: 1em;
+            padding: 0.5em 1em;
+            font-size: 16px;
+        }
+
+        .next-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .next-button:hover {
+            background-color: #0056b3;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .name {
+            font-size: 3rem;
+        }
+
+        p {
+            font-size: 2em;
+        }
+
+        .button {
+            margin: 1em;
+            padding: 0.5em 1em;
+            font-size: 16px;
+        }
+
+        .next-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .next-button:hover {
+            background-color: #0056b3;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* For Smart Phone */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1rem;
+            }
+
+            img {
+                height: 192px;
+                width: 192px;
+            }
+
+            p {
+                font-size: 1rem;
+                word-wrap: break-word;
+            }
+
+            .name {
+                font-size: 1rem;
+                word-wrap: break-word;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>AWS Architecture Icon Quiz</h1>
+    <img src="{{ url_for('static', filename=image_name) }}" alt="image">
+    <p class="name" id="name">{{ name }}</p>
+    <div class="button-container">
+        <button class="hint-button button" id="hintButton">Hint</button>
+        <button class="answer-button button" id="revealAnswerButton">Show Answer</button>
+    </div>
+    <button class="next-button button" id="nextQuizButton">Next Quiz</button>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        realName = "{{ real_name }}";
+        console.log(realName)
+        $('#hintButton').click(function () {
+            name = $('#name').text();
+            asteriskIndices = [];
+            for (i = 0; i < name.length; i++) {
+                if (name[i] === '*') {
+                    asteriskIndices.push(i);
+                }
+            }
+            revealCount = Math.min(3, asteriskIndices.length);
+            for (j = 0; j < revealCount; j++) {
+                randomIndex = Math.floor(Math.random() * asteriskIndices.length);
+                newName = name.substring(0, asteriskIndices[randomIndex]) + realName[asteriskIndices[randomIndex]] + name.substring(asteriskIndices[randomIndex] + 1);
+                asteriskIndices.splice(randomIndex, 1);
+                name = newName;
+            }
+            $('#name').text(name);
+        });
+        $('#revealAnswerButton').click(function () {
+            $('#name').text(realName);
+        });
+        $('#nextQuizButton').click(function () {
+            $.post('/next_quiz', function (data) {
+                $('img').attr('src', '/static/' + data.image_name);
+                $('#name').text(data.name);
+                realName = data.real_name;
+                console.log(realName)
+            });
+        });
+    </script>
+</body>
+
+</html>
